@@ -1,4 +1,5 @@
 import psycopg2
+import os
 
 
 class Database(object):
@@ -6,7 +7,8 @@ class Database(object):
 
     def __init__(self, dbconn=None):
         if dbconn is None:
-            dbconn = "dbname='covid' user='sipp11' host='dga-vm1' port='35432' password='banshee10' sslmode='disable'"
+            default_dbconn = "dbname='covid' user='sipp11' host='dga-vm1' port='35432' password='banshee10' sslmode='disable'"
+            dbconn = os.getenv("DB_URI", default_dbconn)
         self.conn = psycopg2.connect(dbconn)
         self.cursor = self.conn.cursor()
 

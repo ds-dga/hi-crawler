@@ -1,0 +1,9 @@
+version: "3"
+
+services:
+  hi-crawler:
+    image: dk-reg.10ninox.com/ds-dga/hi-crawler:latest
+    environment:
+      - PED_APIKEY=${PED_APIKEY}
+      - BU_TOKEN=${BU_TOKEN}
+      - DB_URI=${DB_URI}
