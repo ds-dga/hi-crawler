@@ -77,6 +77,22 @@ class Database(object):
             print(e, end="\r")
             self.conn.rollback()
 
+    def find_medical_place(
+        self,
+        name,
+        source,
+    ):
+        q = f"SELECT DISTINCT id FROM medical_place WHERE name = '{name}' AND source = '{source}'"
+        try:
+            self.cursor.execute(q)
+            one = self.cursor.fetchone()
+            if one:
+                # print("[get/create] got: ", one)
+                return one[0]
+        except Exception as e:
+            print("[get/create] err: ", e)
+            return None
+
     def get_or_create_medical_place(
         self,
         name,
@@ -119,6 +135,17 @@ class Database(object):
                 )
             ]
         )
+
+    def update_medical_place(self, set_where_args):
+        q = f"""UPDATE "medical_place" SET"""
+        try:
+            self.cursor.execute(f"""{q} {set_where_args} RETURNING id""")
+            self.conn.commit()
+            return self.cursor.fetchone()[0]
+        except Exception as e:
+            print(e, end="\r")
+            self.conn.rollback()
+        return None
 
     def insert_medical_place_bulk(self, data):
         items = ",".join(

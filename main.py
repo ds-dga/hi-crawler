@@ -10,12 +10,21 @@ def update_all():
     s = time.time()
     now = arrow.get().to("Asia/Bangkok")
     print(f"[{(time.time() - s):10.3f}] working...{now.isoformat()}")
-    ped_hi()
-    print(f"[{(time.time() - s):10.3f}] > PED done...")
-    wesafe_hi()
-    print(f"[{(time.time() - s):10.3f}] > WeSAFE done...")
-    nectec_hi()
-    print(f"[{(time.time() - s):10.3f}] > NECTEC done...")
+    try:
+        ped_hi()
+        print(f"[{(time.time() - s):10.3f}] > PED done...")
+    except Exception as e:
+        print(f"[{(time.time() - s):10.3f}] Error...{e}")
+    try:
+        wesafe_hi()
+        print(f"[{(time.time() - s):10.3f}] > WeSAFE done...")
+    except Exception as e:
+        print(f"[{(time.time() - s):10.3f}] Error...{e}")
+    try:
+        nectec_hi()
+        print(f"[{(time.time() - s):10.3f}] > NECTEC done...")
+    except Exception as e:
+        print(f"[{(time.time() - s):10.3f}] Error...{e}")
 
 
 schedule.every().day.at("05:35").do(update_all)

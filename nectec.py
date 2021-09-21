@@ -47,33 +47,67 @@ def get_items(what):
         return []
     timestamp = body["update_ts"]
     tmsp = arrow.get(timestamp).to("Asia/Bangkok")
-    data = [
-        {
-            "cdOrganizationMedicalUnit": i["hospcode"],
-            "hsMedicalUnitName": i["hospname"],
-            "emLocationType": i["hospital_type"].replace("null", ""),
-            "crZoneCode": "",
-            "crProvinceCode": i["prov_code"].replace("null", ""),
-            "crAmpurCode": i["amp_code"].replace("null", ""),
-            "crTumbolCode": i["tambon_code"].replace("null", ""),
-            "crGeographicCoordinateLatitude": None,
-            "crGeographicCoordinateLongitude": None,
-            "crBuildingName": "",
-            "statBedFree": i["bed_count"] - i["patient_active_count"],
-            "statBedTotal": i["bed_count"],
-            "patientWait": i["today_null_count"],
-            "patientGreen": i["active_negative_count"],
-            "patientYellow": i["active_positive_count"],
-            "patientRed": i["active_urgent_count"],
-            "emPatientFavipiravir": -1,
-            "statReportLink": "",
-            "reportFlag": -1,
-            "reportNote": f"agency: {i['agency']}",
-            "timestamp": tmsp.isoformat(),
-        }
-        for i in body["hstat"]
-    ]
+
+    data = []
+    for i in body["hstat"]:
+        place_code = i["cdOrganizationMedicalUnit"]
+        pcs = place_code.split("_")
+        loc_type = i["hospital_type"].replace("null", "")
+        if len(pcs) == 3:
+            loc_type = pcs[1]
+        # nectec ain't going to fix duplicate cdOrganizationMedicalUnit, then we do our own code which is cdOrganizationMedicalUnit concats with nectec's hospcode to make sure if record is identifiable.
+        place_code = "_".join([place_code, i["hospcode"]])
+        data.append(
+            {
+                "cdOrganizationMedicalUnit": place_code,
+                "hsMedicalUnitName": i["hospname"],
+                "emLocationType": loc_type,
+                "crZoneCode": "",
+                "crProvinceCode": i["prov_code"].replace("null", ""),
+                "crAmpurCode": i["amp_code"].replace("null", ""),
+                "crTumbolCode": i["tambon_code"].replace("null", ""),
+                "crGeographicCoordinateLatitude": None,
+                "crGeographicCoordinateLongitude": None,
+                "crBuildingName": "",
+                "statBedFree": i["bed_count"] - i["patient_active_count"],
+                "statBedTotal": i["bed_count"],
+                "patientWait": i["today_null_count"],
+                "patientGreen": i["active_negative_count"],
+                "patientYellow": i["active_positive_count"],
+                "patientRed": i["active_urgent_count"],
+                "emPatientFavipiravir": -1,
+                "statReportLink": "",
+                "reportFlag": -1,
+                "reportNote": f"agency: {i['agency']}",
+                "timestamp": tmsp.isoformat(),
+            }
+        )
+
     return data
+
+
+def update_place_info(db, item):
+    """
+    [2021-09-18] AMED เพิ่มฟิลด์ "cdOrganizationMedicalUnit": "AMED_02_42546"
+
+    ใน API เรียบร้อยแล้ว ทั้งฝั่ง กทม. และ กรมการแพทย์
+    https://datalake.ddc-care.com/api/object/histats.hospitalnew.pub/data
+    https://datalake.ddc-care.com/api/object/histats.dmscare.pub/data
+
+    As a result, we have both new "code" and "location_type" with "name" remains the same.
+
+    Thus, find by "name", then update "code" and "location_type" accordingly.
+    """
+    found = db.find_medical_place(item["hsMedicalUnitName"], "nectec")
+    if found:
+        print(f"found - {found}")
+        txt = f"""
+        "code" = '{item["cdOrganizationMedicalUnit"]}',
+        "location_type" = '{item["emLocationType"]}'
+        WHERE "id" = '{found}'"""
+        db.update_medical_place(txt)
+        return
+    print("not found - wait for next update to create a record")
 
 
 def get_hospitals():
@@ -87,6 +121,7 @@ def get_hospitals():
 
     db = Database()
     for rec in result:
+        # update_place_info(db, rec)
         db.insert_hospital(
             rec["cdOrganizationMedicalUnit"],
             rec["hsMedicalUnitName"],

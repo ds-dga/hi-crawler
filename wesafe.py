@@ -31,10 +31,10 @@ def push_mk2(db, rec, source="-"):
         source,
         None,
     )
-    now = arrow.get().to("Asia/Bangkok").isoformat()
+    tmsp = arrow.get(rec["update_at"]).to("Asia/Bangkok")
     db.insert_place_stats(
         medilo,
-        now,
+        tmsp.isoformat(),
         rec["statBedTotal"],
         rec["statBedFree"],
         rec["patientWait"],
@@ -46,6 +46,25 @@ def push_mk2(db, rec, source="-"):
         rec["reportNote"],
         rec["statReportLink"],
     )
+
+
+def update_place_info(db, item):
+    """
+    [2021-09-21] weSafe เพิ่มข้อมูล "cdOrganizationMedicalUnit" : "KYD_02_11295" แล้วนะครับ (ผมใช้ KYD เพื่อให้เหมือนกับ RC ครับ) ส่วนใหญ่มีข้อมูลแล้วแต่ยังขาดอยู่อีกไม่กี่ที่ จะทยอยเติมให้ครบครับ
+
+    This change causes multiple unique key to break because NULL is acceptable
+    in unique keys... Well, first of we need to clean up multiple records
+    """
+    found = db.find_medical_place(item["hsMedicalUnitName"], "wesafe")
+    if found:
+        print(f"found - {found}")
+        txt = f"""
+        "code" = '{item["cdOrganizationMedicalUnit"]}',
+        "location_type" = '{item["emLocationType"]}'
+        WHERE "id" = '{found}'"""
+        db.update_medical_place(txt)
+        return
+    print("not found - wait for next update to create a record")
 
 
 def get_hospitals():
@@ -61,6 +80,11 @@ def get_hospitals():
 
     db = Database()
     for rec in body["data"]:
+        # change all NULL or None in python to "" because NULL can break
+        #   through unique keys
+        if not rec["cdOrganizationMedicalUnit"]:
+            rec["cdOrganizationMedicalUnit"] = ""
+
         db.insert_hospital(
             rec["cdOrganizationMedicalUnit"],
             rec["hsMedicalUnitName"],
@@ -82,7 +106,7 @@ def get_hospitals():
             rec["statReportLink"],
             rec["reportFlag"],
             rec["reportNote"],
-            "WeSAFE",
+            "wesafe",
         )
         push_mk2(db, rec, source="wesafe")
 
