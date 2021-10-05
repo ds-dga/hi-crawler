@@ -85,6 +85,7 @@ def get_hospitals():
         if not rec["cdOrganizationMedicalUnit"]:
             rec["cdOrganizationMedicalUnit"] = ""
 
+        tmsp = arrow.get(rec["update_at"]).to("Asia/Bangkok")
         db.insert_hospital(
             rec["cdOrganizationMedicalUnit"],
             rec["hsMedicalUnitName"],
@@ -106,6 +107,7 @@ def get_hospitals():
             rec["statReportLink"],
             rec["reportFlag"],
             rec["reportNote"],
+            tmsp.isoformat(),
             "wesafe",
         )
         push_mk2(db, rec, source="wesafe")

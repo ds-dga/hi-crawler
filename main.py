@@ -27,13 +27,14 @@ def update_all():
         print(f"[{(time.time() - s):10.3f}] Error...{e}")
 
 
-schedule.every().day.at("05:35").do(update_all)
-schedule.every().day.at("08:35").do(update_all)
-schedule.every().day.at("10:35").do(update_all)
-schedule.every().day.at("13:35").do(update_all)
-schedule.every().day.at("16:35").do(update_all)
-schedule.every().day.at("20:35").do(update_all)
-schedule.every().day.at("22:35").do(update_all)
+# schedule.every().day.at("05:35").do(update_all)
+# schedule.every().day.at("08:35").do(update_all)
+# schedule.every().day.at("10:35").do(update_all)
+# schedule.every().day.at("13:35").do(update_all)
+# schedule.every().day.at("16:35").do(update_all)
+# schedule.every().day.at("20:35").do(update_all)
+# schedule.every().day.at("22:35").do(update_all)
+schedule.every().hour.at(":35").do(update_all)
 
 
 while True:

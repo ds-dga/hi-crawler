@@ -143,6 +143,7 @@ def get_hospitals():
             rec["statReportLink"],
             rec["reportFlag"],
             rec["reportNote"],
+            rec["timestamp"],
             "nectec",
         )
         push_mk2(db, rec, source="nectec")

@@ -61,6 +61,7 @@ def get_hospitals():
         return
 
     db = Database()
+    now = arrow.get().to("Asia/Bangkok").isoformat()
     for rec in body["data"]:
         db.insert_hospital(
             rec["cdOrganizationMedicalUnit"],
@@ -83,6 +84,7 @@ def get_hospitals():
             rec["statReportLink"],
             rec["reportFlag"],
             rec["reportNote"],
+            now,
             "ped",
         )
         push_mk2(db, rec)

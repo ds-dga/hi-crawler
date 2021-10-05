@@ -62,15 +62,15 @@ class Database(object):
     def insert_hospital_bulk(self, data):
         items = ",".join(
             self.cursor.mogrify(
-                "(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,ST_GeomFromText(%s, 4326))",
+                "(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,ST_GeomFromText(%s, 4326))",
                 x,
             ).decode("utf-8")
             for x in data
         )
-        q = f"""INSERT INTO hospital ("cdOrganizationMedicalUnit","hsMedicalUnitName","emLocationType","crZoneCode","crProvinceCode","crAmpurCode","crTumbolCode","crGeographicCoordinateLatitude","crGeographicCoordinateLongitude","crBuildingName","statBedFree","statBedTotal","patientWait","patientGreen","patientYellow","patientRed","emPatientFavipiravir","statReportLink","reportFlag","reportNote","source","coords") VALUES"""
+        q = f"""INSERT INTO hospital ("cdOrganizationMedicalUnit","hsMedicalUnitName","emLocationType","crZoneCode","crProvinceCode","crAmpurCode","crTumbolCode","crGeographicCoordinateLatitude","crGeographicCoordinateLongitude","crBuildingName","statBedFree","statBedTotal","patientWait","patientGreen","patientYellow","patientRed","emPatientFavipiravir","statReportLink","reportFlag","reportNote","timestamp","source","coords") VALUES"""
         try:
             self.cursor.execute(
-                f"""{q} {items} ON CONFLICT ("cdOrganizationMedicalUnit", "hsMedicalUnitName") DO UPDATE SET ("statBedTotal", "patientWait", "patientGreen", "patientYellow", "patientRed", "emPatientFavipiravir", "reportFlag", "source") = (EXCLUDED."statBedTotal", EXCLUDED."patientWait", EXCLUDED."patientGreen", EXCLUDED."patientYellow", EXCLUDED."patientRed", EXCLUDED."emPatientFavipiravir", EXCLUDED."reportFlag", EXCLUDED."source")"""
+                f"""{q} {items} ON CONFLICT ("cdOrganizationMedicalUnit", "hsMedicalUnitName") DO UPDATE SET ("statBedTotal", "patientWait", "patientGreen", "patientYellow", "patientRed", "emPatientFavipiravir", "reportFlag", "source", "timestamp") = (EXCLUDED."statBedTotal", EXCLUDED."patientWait", EXCLUDED."patientGreen", EXCLUDED."patientYellow", EXCLUDED."patientRed", EXCLUDED."emPatientFavipiravir", EXCLUDED."reportFlag", EXCLUDED."source", EXCLUDED."timestamp")"""
             )
             self.conn.commit()
         except Exception as e:
@@ -189,6 +189,7 @@ class Database(object):
         statReportLink,
         reportFlag,
         reportNote,
+        timestamp,
         source="",
     ):
         coords = None
@@ -216,6 +217,7 @@ class Database(object):
                 statReportLink,
                 reportFlag,
                 reportNote,
+                timestamp,
                 source,
                 coords,
             )
