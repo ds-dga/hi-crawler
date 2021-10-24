@@ -4,6 +4,7 @@ import arrow
 from nectec import get_hospitals as nectec_hi
 from wesafe import get_hospitals as wesafe_hi
 from ped import get_hospitals as ped_hi
+from daily_proc import daily_record
 
 
 def update_all():
@@ -35,6 +36,8 @@ def update_all():
 # schedule.every().day.at("20:35").do(update_all)
 # schedule.every().day.at("22:35").do(update_all)
 schedule.every().hour.at(":35").do(update_all)
+schedule.every().day.at("18:50").do(daily_record)
+
 
 
 while True:

@@ -238,6 +238,7 @@ class Database(object):
         report_flag,
         report_note,
         report_link,
+        extras=None,
     ):
         data = [
             (
@@ -253,6 +254,7 @@ class Database(object):
                 report_flag,
                 report_note,
                 report_link,
+                extras,
             )
         ]
         self.insert_place_stats_bulk(data)
@@ -260,12 +262,12 @@ class Database(object):
     def insert_place_stats_bulk(self, data):
         items = ",".join(
             self.cursor.mogrify(
-                "(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                "(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                 x,
             ).decode("utf-8")
             for x in data
         )
-        q = f"""INSERT INTO place_stats ("place_at", "timestamp", "bed_total", "bed_free", "patient_wait", "patient_green", "patient_yellow", "patient_red", "patient_favipiravir", "report_flag", "report_note", "report_link") VALUES"""
+        q = f"""INSERT INTO place_stats ("place_at", "timestamp", "bed_total", "bed_free", "patient_wait", "patient_green", "patient_yellow", "patient_red", "patient_favipiravir", "report_flag", "report_note", "report_link", "extras") VALUES"""
         try:
             self.cursor.execute(
                 f"""{q} {items} ON CONFLICT ("place_at", "timestamp") DO NOTHING"""
@@ -274,3 +276,44 @@ class Database(object):
         except Exception as e:
             print(e, end="\r")
             self.conn.rollback()
+
+    def insert_daily_place_stats_bulk(self, data):
+        items = ",".join(
+            self.cursor.mogrify(
+                "(%s,%s,%s,%s,%s,%s,%s)",
+                x,
+            ).decode("utf-8")
+            for x in data
+        )
+        q = f"""INSERT INTO daily_place_stats ("place_at", "day", "bed_total", "patient_wait", "patient_green", "patient_yellow", "patient_red") VALUES"""
+        try:
+            self.cursor.execute(
+                f"""{q} {items} ON CONFLICT ("place_at", "day") DO NOTHING"""
+            )
+            self.conn.commit()
+        except Exception as e:
+            print(e, end="\r")
+            self.conn.rollback()
+
+    def insert_daily_place_stats(
+        self,
+        place_at,
+        day,
+        bed_total,
+        patient_wait,
+        patient_green,
+        patient_yellow,
+        patient_red,
+    ):
+        data = [
+            (
+                place_at,
+                day,
+                bed_total,
+                patient_wait,
+                patient_green,
+                patient_yellow,
+                patient_red,
+            )
+        ]
+        self.insert_daily_place_stats_bulk(data)

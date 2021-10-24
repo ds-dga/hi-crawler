@@ -1,7 +1,7 @@
 from db import Database
 import sys
 import os
-from json import loads
+from json import loads, dumps
 from requests import get
 import arrow
 from db import Database
@@ -45,6 +45,7 @@ def push_mk2(db, rec, source="-"):
         rec["reportFlag"],
         rec["reportNote"],
         rec["statReportLink"],
+        dumps(rec),
     )
 
 

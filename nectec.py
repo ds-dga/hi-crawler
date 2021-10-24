@@ -1,4 +1,4 @@
-from json import loads
+from json import loads, dumps
 from requests import get
 import arrow
 from db import Database
@@ -33,6 +33,7 @@ def push_mk2(db, rec, source="-"):
         rec["reportFlag"],
         rec["reportNote"],
         rec["statReportLink"],
+        rec["extras"],
     )
 
 
@@ -80,6 +81,7 @@ def get_items(what):
                 "reportFlag": -1,
                 "reportNote": f"agency: {i['agency']}",
                 "timestamp": tmsp.isoformat(),
+                "extras": dumps(i),
             }
         )
 
