@@ -2,6 +2,7 @@ from json import loads, dumps
 from requests import get
 import arrow
 from db import Database
+import uptime_pusher
 
 BASE_URL = "https://datalake.ddc-care.com"
 
@@ -40,6 +41,9 @@ def push_mk2(db, rec, source="-"):
 def get_items(what):
     url = f"{BASE_URL}/api/object/{what}/data"
     res = get(url)
+    #    --- uptime pusher ---
+    uptime_pusher.push(res)
+    # --- end of uptime pusher ---
     if res.status_code != 200:
         print(f"[{res.status_code}] {res.text}")
         return

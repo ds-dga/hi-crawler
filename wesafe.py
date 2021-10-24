@@ -5,6 +5,7 @@ from json import loads, dumps
 from requests import get
 import arrow
 from db import Database
+import uptime_pusher
 
 TOKEN = os.getenv("BU_TOKEN", "")
 BASE_URL = "https://api.aidery.io"
@@ -71,6 +72,9 @@ def update_place_info(db, item):
 def get_hospitals():
     url = f"{BASE_URL}/reports/domains/isolation"
     res = get(url, headers=get_headers())
+    #    --- uptime pusher ---
+    uptime_pusher.push(res)
+    # --- end of uptime pusher ---
     if res.status_code != 200:
         print(f"[{res.status_code}] {res.text}")
         return

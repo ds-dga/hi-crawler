@@ -4,6 +4,7 @@ from json import loads
 from requests import get
 import arrow
 from db import Database
+import uptime_pusher
 
 PED_APIKEY = os.getenv("PED_APIKEY", "")
 BASE_URL = "https://ped-shelter-parse-eir4oz44ca-uk.a.run.app"
@@ -52,6 +53,9 @@ def push_mk2(db, rec):
 def get_hospitals():
     url = f"{BASE_URL}/pedthai/dashboard/hospitals"
     res = get(url, headers=get_headers())
+    #    --- uptime pusher ---
+    uptime_pusher.push(res)
+    # --- end of uptime pusher ---
     if res.status_code != 200:
         print(f"[{res.status_code}] {res.text}")
         return
