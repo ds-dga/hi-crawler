@@ -60,7 +60,7 @@ def get_hospitals():
         uptime_pusher.push(res)
     except:
         duration = time.time() - s
-        uptime_pusher.push_raw(url, 504, duration)  # 504 gateway timeout
+        uptime_pusher.push_raw(url, 504, duration * 100)  # 504 gateway timeout
         return
 
     #    --- uptime pusher ---
