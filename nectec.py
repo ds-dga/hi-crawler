@@ -1,4 +1,5 @@
 from json import loads, dumps
+import time
 from requests import get
 import arrow
 from db import Database
@@ -40,9 +41,16 @@ def push_mk2(db, rec, source="-"):
 
 def get_items(what):
     url = f"{BASE_URL}/api/object/{what}/data"
-    res = get(url)
-    #    --- uptime pusher ---
-    uptime_pusher.push(res)
+    s = time.time()
+    res = None
+    try:
+        res = get(url)
+        uptime_pusher.push(res)
+    except:
+        duration = time.time() - s
+        uptime_pusher.push_raw(url, 504, duration)  # 504 gateway timeout
+        return
+
     # --- end of uptime pusher ---
     if res.status_code != 200:
         print(f"[{res.status_code}] {res.text}")

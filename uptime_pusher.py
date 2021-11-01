@@ -25,3 +25,18 @@ def push(resp):
         json=body,
     )
     print(f"uptime hook: [{resp.status_code}] {resp.elapsed.total_seconds()} s")
+
+def push_raw(id, status_code, resp_time):
+    _from = socket.gethostname()
+    body = {
+        "id": id,
+        "status_code": status_code,
+        "size_byte": 0,
+        "response_time_ms": resp_time,
+        "from": _from,
+    }
+    resp = requests.post(
+        uptime_uri,
+        json=body,
+    )
+    print(f"uptime hook: [{resp.status_code}] {resp.elapsed.total_seconds()} s")

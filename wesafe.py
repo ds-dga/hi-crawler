@@ -1,5 +1,6 @@
 from db import Database
 import sys
+import time
 import os
 from json import loads, dumps
 from requests import get
@@ -71,9 +72,16 @@ def update_place_info(db, item):
 
 def get_hospitals():
     url = f"{BASE_URL}/reports/domains/isolation"
-    res = get(url, headers=get_headers())
-    #    --- uptime pusher ---
-    uptime_pusher.push(res)
+    s = time.time()
+    res = None
+    try:
+        res = get(url, headers=get_headers())
+        uptime_pusher.push(res)
+    except:
+        duration = time.time() - s
+        uptime_pusher.push_raw(url, 504, duration)  # 504 gateway timeout
+        return
+
     # --- end of uptime pusher ---
     if res.status_code != 200:
         print(f"[{res.status_code}] {res.text}")

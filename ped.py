@@ -1,4 +1,5 @@
 import sys
+import time
 import os
 from json import loads
 from requests import get
@@ -52,9 +53,17 @@ def push_mk2(db, rec):
 
 def get_hospitals():
     url = f"{BASE_URL}/pedthai/dashboard/hospitals"
-    res = get(url, headers=get_headers())
+    s = time.time()
+    res = None
+    try:
+        res = get(url, headers=get_headers())
+        uptime_pusher.push(res)
+    except:
+        duration = time.time() - s
+        uptime_pusher.push_raw(url, 504, duration)  # 504 gateway timeout
+        return
+
     #    --- uptime pusher ---
-    uptime_pusher.push(res)
     # --- end of uptime pusher ---
     if res.status_code != 200:
         print(f"[{res.status_code}] {res.text}")

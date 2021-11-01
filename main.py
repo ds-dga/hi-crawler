@@ -15,17 +15,17 @@ def update_all():
         ped_hi()
         print(f"[{(time.time() - s):10.3f}] > PED done...")
     except Exception as e:
-        print(f"[{(time.time() - s):10.3f}] Error...{e}")
+        print(f"[{(time.time() - s):10.3f}] PED Error...{e}")
     try:
         wesafe_hi()
         print(f"[{(time.time() - s):10.3f}] > WeSAFE done...")
     except Exception as e:
-        print(f"[{(time.time() - s):10.3f}] Error...{e}")
+        print(f"[{(time.time() - s):10.3f}] WeSAFE Error...{e}")
     try:
         nectec_hi()
-        print(f"[{(time.time() - s):10.3f}] > NECTEC done...")
+        print(f"[{(time.time() - s):10.3f}] > AMED done...")
     except Exception as e:
-        print(f"[{(time.time() - s):10.3f}] Error...{e}")
+        print(f"[{(time.time() - s):10.3f}] AMED Error...{e}")
 
 
 # schedule.every().day.at("05:35").do(update_all)
