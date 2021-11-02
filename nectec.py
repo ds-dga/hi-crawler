@@ -131,7 +131,10 @@ def get_hospitals():
     ]
     result = []
     for k in kinds:
-        result += get_items(k)
+        try:
+            result += get_items(k)
+        except:
+            pass
 
     db = Database()
     for rec in result:
